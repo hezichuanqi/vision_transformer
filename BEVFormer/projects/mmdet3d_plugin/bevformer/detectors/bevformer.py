@@ -80,7 +80,7 @@ class BEVFormer(MVXTwoStageDetector):
                 B, N, C, H, W = img.size()
                 img = img.reshape(B * N, C, H, W)
             if self.use_grid_mask:
-                img = self.grid_mask(img)
+                img = self.grid_mask(img) #使用grid mask数据增强
 
             img_feats = self.img_backbone(img)
             if isinstance(img_feats, dict):
@@ -219,7 +219,7 @@ class BEVFormer(MVXTwoStageDetector):
         img = img[:, -1, ...] #当前帧 (1, 6, 3, 736, 1280)
 
         prev_img_metas = copy.deepcopy(img_metas)
-        prev_bev = self.obtain_history_bev(prev_img, prev_img_metas) # 获取历史帧的BEV特征图 (1, 22500, 256)
+        prev_bev = self.obtain_history_bev(prev_img, prev_img_metas) # 获取历史帧的BEV特征图 (1, w*h, 256)
 
         img_metas = [each[len_queue-1] for each in img_metas]
         if not img_metas[0]['prev_bev_exists']:

@@ -169,15 +169,16 @@ class BEVFormerHead(DETRHead):
         )
 
         bev_embed, hs, init_reference, inter_references = outputs
-        hs = hs.permute(0, 2, 1, 3)
+        hs = hs.permute(0, 2, 1, 3) #隐藏层，内部decoder layer输出的object query
         outputs_classes = []
         outputs_coords = []
+        #遍历所有decoder layer的输出
         for lvl in range(hs.shape[0]):
             if lvl == 0:
-                reference = init_reference
+                reference = init_reference #(1, 900, 3) 对于第0层，则取初始参考点
             else:
-                reference = inter_references[lvl - 1]
-            reference = inverse_sigmoid(reference)
+                reference = inter_references[lvl - 1] #其余层则取上一层的参考点，参考点都是在0～1之间的
+            reference = inverse_sigmoid(reference) #对参考点取逆，获取真实位置
             outputs_class = self.cls_branches[lvl](hs[lvl])
             tmp = self.reg_branches[lvl](hs[lvl])
 
